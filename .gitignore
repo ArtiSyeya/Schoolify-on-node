@@ -16,6 +16,11 @@ dist/
 build/
 client/dist/
 
+# Database (SQLite, локальная)
+*.db
+*.db-journal
+server/prisma/*.db
+
 # Editor / OS
 .vscode/
 .idea/
