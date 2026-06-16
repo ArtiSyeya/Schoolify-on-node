@@ -4,7 +4,7 @@ export async function listEvents() {
   const events = await prisma.event.findMany({
     where: { status: 'PUBLISHED' },
     orderBy: { startsAt: 'asc' },
-    include: { _count: { select: { registrations: true } } },
+    include: { _count: { select: { registrations: { where: { status: 'ACTIVE' } } } } },
   });
   return events.map(formatEvent);
 }
@@ -14,7 +14,7 @@ export async function getEvent(id) {
     where: { id },
     include: {
       organizer: { select: { id: true, fullName: true } },
-      _count: { select: { registrations: true } },
+      _count: { select: { registrations: { where: { status: 'ACTIVE' } } } },
     },
   });
   return event ? formatEvent(event) : null;
