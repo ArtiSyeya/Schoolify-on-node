@@ -17,6 +17,7 @@ function logout() {
       <router-link to="/" class="brand">Schoolify</router-link>
       <nav class="nav">
         <router-link to="/events">Мероприятия</router-link>
+        <router-link v-if="store.role === 'ADMIN'" to="/admin/users">Админка</router-link>
         <router-link v-if="store.isAuth" to="/profile">Кабинет</router-link>
         <router-link v-if="!store.isAuth" to="/login">Вход</router-link>
         <a v-else href="#" @click.prevent="logout">Выход ({{ store.user.fullName }})</a>

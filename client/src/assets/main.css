@@ -191,6 +191,59 @@ a {
   margin: 4px 0 0;
 }
 
+.badge.blocked {
+  background: #fdecea;
+  color: var(--error);
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.toolbar input {
+  flex: 1;
+  max-width: 360px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.table th {
+  background: #f0f3fa;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table select {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
 .auth {
   max-width: 360px;
   margin: 0 auto;

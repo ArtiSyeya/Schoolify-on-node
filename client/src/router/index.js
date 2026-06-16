@@ -21,6 +21,12 @@ const routes = [
         meta: { requiresAuth: true },
         component: () => import('../views/profile/ProfileView.vue'),
       },
+      {
+        path: 'admin/users',
+        name: 'admin-users',
+        meta: { requiresAuth: true, role: 'ADMIN' },
+        component: () => import('../views/admin/AdminUsersView.vue'),
+      },
     ],
   },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
@@ -31,11 +37,14 @@ const router = createRouter({
   routes,
 });
 
-// Защита маршрутов по авторизации (роли подключатся на следующих этапах).
+// Защита маршрутов: авторизация и роль.
 router.beforeEach((to) => {
   const store = useUserStore();
   if (to.meta.requiresAuth && !store.isAuth) {
     return { name: 'login', query: { redirect: to.fullPath } };
+  }
+  if (to.meta.role && store.role !== to.meta.role) {
+    return { name: 'home' };
   }
 });
 
