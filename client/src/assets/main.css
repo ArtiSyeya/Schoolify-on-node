@@ -244,6 +244,52 @@ a {
   border-radius: 6px;
 }
 
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 14px;
+  white-space: nowrap;
+}
+
+.actions .danger {
+  color: var(--error);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 520px;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.form input,
+.form textarea,
+.form select {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.form .btn {
+  align-self: flex-start;
+}
+
 .auth {
   max-width: 360px;
   margin: 0 auto;

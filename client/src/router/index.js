@@ -22,9 +22,33 @@ const routes = [
         component: () => import('../views/profile/ProfileView.vue'),
       },
       {
+        path: 'organizer/events',
+        name: 'organizer-events',
+        meta: { requiresAuth: true, roles: ['ORGANIZER', 'ADMIN'] },
+        component: () => import('../views/organizer/OrganizerEventsView.vue'),
+      },
+      {
+        path: 'organizer/events/new',
+        name: 'organizer-event-new',
+        meta: { requiresAuth: true, roles: ['ORGANIZER', 'ADMIN'] },
+        component: () => import('../views/organizer/EventFormView.vue'),
+      },
+      {
+        path: 'organizer/events/:id/edit',
+        name: 'organizer-event-edit',
+        meta: { requiresAuth: true, roles: ['ORGANIZER', 'ADMIN'] },
+        component: () => import('../views/organizer/EventFormView.vue'),
+      },
+      {
+        path: 'organizer/events/:id/participants',
+        name: 'organizer-event-participants',
+        meta: { requiresAuth: true, roles: ['ORGANIZER', 'ADMIN'] },
+        component: () => import('../views/organizer/EventParticipantsView.vue'),
+      },
+      {
         path: 'admin/users',
         name: 'admin-users',
-        meta: { requiresAuth: true, role: 'ADMIN' },
+        meta: { requiresAuth: true, roles: ['ADMIN'] },
         component: () => import('../views/admin/AdminUsersView.vue'),
       },
     ],
@@ -43,7 +67,7 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth && !store.isAuth) {
     return { name: 'login', query: { redirect: to.fullPath } };
   }
-  if (to.meta.role && store.role !== to.meta.role) {
+  if (to.meta.roles && !to.meta.roles.includes(store.role)) {
     return { name: 'home' };
   }
 });
