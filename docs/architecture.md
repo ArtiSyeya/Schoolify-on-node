@@ -123,7 +123,7 @@ erDiagram
 ## 5. API
 
 - Стиль: **REST**, формат **JSON**, префикс и версия — **`/api/v1`**.
-- Ресурсы: `auth`, `events`, `registrations`, `profile`, `rating`, `notifications`, `admin/users`.
+- Ресурсы: `auth`, `events`, `registrations`, `profile`, `users`, `rating`, `notifications`, `admin/users`.
 - Коды ответов: `200/201` успех, `400` валидация, `401` нет авторизации,
   `403` нет прав, `404` не найдено, `409` конфликт (мест нет / уже записан),
   `500` ошибка сервера.
@@ -140,6 +140,7 @@ erDiagram
 | POST | `/api/v1/events/:id/register` | студент | записаться |
 | DELETE | `/api/v1/registrations/:id` | студент | отменить запись |
 | GET | `/api/v1/profile` | auth | профиль + геймификация |
+| GET | `/api/v1/users/:id` | auth | публичный профиль другого пользователя |
 | GET | `/api/v1/rating` | auth | рейтинг волонтёров (`period`) |
 | GET | `/api/v1/admin/users` | админ | управление пользователями |
 

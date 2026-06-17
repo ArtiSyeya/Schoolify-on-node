@@ -259,6 +259,22 @@ fullName,email,status,createdAt
 ```
 Ошибки: `400 VALIDATION_ERROR` (пустое имя), `401`.
 
+### GET `/users/:id` — публичный профиль другого пользователя
+Доступ: авторизованный. То же, что `GET /profile`, но **без `email` и `phone`**
+(приватность) и без редактирования. Используется при переходе на профиль из рейтинга.
+```json
+// 200 OK
+{ "success": true, "data": {
+  "id": 2, "fullName": "Марина Кузнецова", "role": "STUDENT",
+  "points": 570, "hours": 24, "eventsCount": 5, "rank": 2,
+  "level": "Участник", "nextLevel": "Активист", "nextThreshold": 1000, "toNextLevel": 430,
+  "badges": [ { "key": "NEWBIE", "name": "Новичок", "earned": true } ],
+  "memberSince": "2026-06-01T00:00:00.000Z",
+  "recentActivity": [ { "id": 9, "eventId": 4, "title": "Мастеркласс по рисованию", "points": 60, "date": "…" } ]
+}}
+```
+Ошибки: `401 UNAUTHORIZED`, `404 NOT_FOUND`.
+
 ---
 
 ## 5. Rating — `/api/v1/rating`
@@ -356,6 +372,7 @@ Query: `?period=week|month|all` (по умолчанию `all`). `me` — мес
 | DELETE | `/registrations/:id` | STUDENT(своё) | Отменить |
 | GET | `/profile` | auth | Профиль + геймификация |
 | PATCH | `/profile` | auth | Изменить имя/телефон |
+| GET | `/users/:id` | auth | Публичный профиль (без email/phone) |
 | GET | `/rating` | auth | Рейтинг волонтёров (`period`) |
 | GET | `/admin/users` | ADMIN | Пользователи |
 | PATCH | `/admin/users/:id/role` | ADMIN | Сменить роль |
