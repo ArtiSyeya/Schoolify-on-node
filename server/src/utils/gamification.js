@@ -1,4 +1,3 @@
-// Уровни по очкам. Порядок — по возрастанию порога.
 export const LEVELS = [
   { key: 'NEWBIE', name: 'Новичок', min: 0 },
   { key: 'MEMBER', name: 'Участник', min: 500 },
@@ -8,7 +7,6 @@ export const LEVELS = [
   { key: 'CHAMPION', name: 'Чемпион', min: 5000 },
 ];
 
-// Текущий уровень, следующий и прогресс до него.
 export function levelInfo(points) {
   let current = LEVELS[0];
   let next = null;
@@ -28,12 +26,11 @@ export function levelInfo(points) {
   };
 }
 
-// Бейджи Новичок…Легенда с признаком, открыт ли (Чемпион не показываем как бейдж).
+
 export function badges(points) {
   return LEVELS.slice(0, 5).map((l) => ({ key: l.key, name: l.name, earned: points >= l.min }));
 }
 
-// Длительность мероприятия в часах (0, если конец не задан).
 export function eventHours(event) {
   if (!event.endsAt) return 0;
   const ms = new Date(event.endsAt) - new Date(event.startsAt);

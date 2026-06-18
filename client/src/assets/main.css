@@ -508,6 +508,11 @@ label.field {
   color: var(--danger);
 }
 
+.badge.attended {
+  background: rgba(95, 174, 49, 0.18);
+  color: var(--primary);
+}
+
 .back {
   display: inline-block;
   margin-bottom: 10px;

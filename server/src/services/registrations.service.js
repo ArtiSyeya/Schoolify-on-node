@@ -1,7 +1,6 @@
 import { prisma } from '../config/prisma.js';
 import { ApiError } from '../utils/apiResponse.js';
 
-// Запись на мероприятие. В транзакции: проверка наличия, дубля и свободных мест.
 export async function register(userId, eventId) {
   return prisma.$transaction(async (tx) => {
     const event = await tx.event.findUnique({ where: { id: eventId } });
@@ -16,7 +15,6 @@ export async function register(userId, eventId) {
       throw new ApiError(409, 'ALREADY_REGISTERED', 'Вы уже зарегистрированы на это мероприятие');
     }
 
-    // capacity = 0 означает «без лимита»
     if (event.capacity > 0) {
       const activeCount = await tx.registration.count({
         where: { eventId, status: 'ACTIVE' },
@@ -26,7 +24,6 @@ export async function register(userId, eventId) {
       }
     }
 
-    // повторно записываемся через ранее отменённую запись либо создаём новую
     const registration = existing
       ? await tx.registration.update({
           where: { id: existing.id },
@@ -44,7 +41,6 @@ export async function register(userId, eventId) {
   });
 }
 
-// Отмена регистрации (мягкая: status = CANCELLED, история сохраняется).
 export async function cancel(userId, registrationId) {
   const reg = await prisma.registration.findUnique({ where: { id: registrationId } });
   if (!reg) throw new ApiError(404, 'NOT_FOUND', 'Регистрация не найдена');
@@ -57,7 +53,7 @@ export async function cancel(userId, registrationId) {
   });
 }
 
-// Мои активные регистрации.
+
 export async function listMy(userId) {
   return prisma.registration.findMany({
     where: { userId, status: 'ACTIVE' },

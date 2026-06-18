@@ -71,11 +71,21 @@ async function main() {
   ]);
 
   // --- Регистрации (формируют очки/часы/рейтинг) ---
-  // helper: записать пользователя на набор индексов мероприятий
+  // helper: записать пользователя на набор индексов мероприятий.
+  // посещение подтверждено (attended) для уже прошедших событий — за них начисляются очки;
+  // будущие события остаются неподтверждёнными (ждут подтверждения организатором).
+  const now = Date.now();
   const reg = (user, idxs) =>
     Promise.all(
       idxs.map((i) =>
-        prisma.registration.create({ data: { userId: user.id, eventId: events[i].id, status: 'ACTIVE' } }),
+        prisma.registration.create({
+          data: {
+            userId: user.id,
+            eventId: events[i].id,
+            status: 'ACTIVE',
+            attended: new Date(events[i].endsAt).getTime() < now,
+          },
+        }),
       ),
     );
 

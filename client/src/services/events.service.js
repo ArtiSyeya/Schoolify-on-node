@@ -11,4 +11,8 @@ export const eventsService = {
   remove: (id) => api.delete(`/events/${id}`),
   participants: (id) => api.get(`/events/${id}/participants`).then((r) => r.data.data.items),
   exportParticipants: (id) => api.get(`/events/${id}/participants/export`, { responseType: 'blob' }),
+  setAttendance: (eventId, registrationId, attended) =>
+    api
+      .patch(`/events/${eventId}/participants/${registrationId}`, { attended })
+      .then((r) => r.data.data),
 };

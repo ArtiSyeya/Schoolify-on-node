@@ -44,8 +44,8 @@ async function submit() {
       <p class="muted" style="text-align: center; margin-bottom: 16px">Введи свои данные, чтобы стать волонтёром</p>
 
       <form @submit.prevent="submit">
-        <label class="field">Полное имя<input v-model="form.fullName" class="input" required /></label>
-        <label class="field">Email<input v-model="form.email" type="email" class="input" required /></label>
+        <label class="field">Полное имя<input v-model="form.fullName" class="input" placeholder="Алина" required /></label>
+        <label class="field">Email<input v-model="form.email" type="email" class="input" placeholder="alina@schoolify.ru" required /></label>
         <label class="field">Номер телефона<input v-model="form.phone" class="input" placeholder="+7 …" /></label>
         <label class="field">Пароль<input v-model="form.password" type="password" class="input" required /></label>
         <p v-if="error" class="error" style="margin-bottom: 10px">{{ error }}</p>

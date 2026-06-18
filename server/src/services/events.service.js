@@ -5,7 +5,6 @@ const EVENT_STATUSES = ['DRAFT', 'PUBLISHED', 'CANCELLED'];
 const EVENT_CATEGORIES = ['ECO', 'HELP', 'EDU', 'SPORT'];
 const ACTIVE_COUNT = { _count: { select: { registrations: { where: { status: 'ACTIVE' } } } } };
 
-// Публичный просмотр
 
 export async function listEvents({ category, search, sort } = {}) {
   const where = { status: 'PUBLISHED' };
@@ -56,7 +55,6 @@ export async function updateEvent(actor, id, data) {
 
 export async function deleteEvent(actor, id) {
   await getOwnedEvent(actor, id);
-  // Каскад вручную: сперва зависимые записи, потом мероприятие.
   await prisma.$transaction([
     prisma.registration.deleteMany({ where: { eventId: id } }),
     prisma.notification.deleteMany({ where: { eventId: id } }),
@@ -75,13 +73,47 @@ export async function getParticipants(actor, id) {
     registrationId: r.id,
     user: r.user,
     status: r.status,
+    attended: r.attended,
     createdAt: r.createdAt,
   }));
 }
 
-// Вспомогательное
+// Подтверждение/снятие посещения организатором (своего события) или админом.
+// Очки начисляются автоматически — они считаются из attended-регистраций.
+export async function setAttendance(actor, eventId, registrationId, attended) {
+  await getOwnedEvent(actor, eventId); // 404/403 если не существует или чужое
+  const reg = await prisma.registration.findUnique({ where: { id: registrationId } });
+  if (!reg || reg.eventId !== eventId) {
+    throw new ApiError(404, 'NOT_FOUND', 'Регистрация не найдена');
+  }
+  if (reg.status !== 'ACTIVE') {
+    throw new ApiError(400, 'VALIDATION_ERROR', 'Регистрация неактивна');
+  }
 
-// Проверка: мероприятие существует и принадлежит организатору (или actor — админ).
+  const updated = await prisma.registration.update({
+    where: { id: registrationId },
+    data: { attended: Boolean(attended) },
+  });
+
+  // при первом подтверждении — уведомить волонтёра о начислении очков
+  if (updated.attended && !reg.attended) {
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+      select: { title: true, points: true },
+    });
+    await prisma.notification.create({
+      data: {
+        userId: reg.userId,
+        eventId,
+        message: `Подтверждено участие в «${event.title}» — начислено ${event.points} очков`,
+      },
+    });
+  }
+
+  return updated;
+}
+
+
 async function getOwnedEvent(actor, id) {
   const event = await prisma.event.findUnique({ where: { id } });
   if (!event) throw new ApiError(404, 'NOT_FOUND', 'Мероприятие не найдено');

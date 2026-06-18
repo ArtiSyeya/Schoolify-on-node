@@ -1,4 +1,4 @@
-// Минимальная сериализация в CSV с экранированием.
+
 
 function escape(value) {
   const s = value == null ? '' : String(value);

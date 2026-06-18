@@ -4,7 +4,7 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
-// Весь раздел доступен только администратору.
+
 router.use(requireAuth, requireRole('ADMIN'));
 
 router.get('/users', getUsers);

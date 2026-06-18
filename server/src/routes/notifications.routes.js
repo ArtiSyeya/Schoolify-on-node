@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-// Все уведомления доступны только своему владельцу.
+
 router.use(requireAuth);
 
 router.get('/', getMy);

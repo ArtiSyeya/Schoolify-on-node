@@ -24,7 +24,6 @@ export async function getProfile(req, res, next) {
   }
 }
 
-// Публичный профиль другого пользователя (без email/телефона).
 export async function getPublicProfile(req, res, next) {
   try {
     const user = await prisma.user.findUnique({ where: { id: Number(req.params.id) } });

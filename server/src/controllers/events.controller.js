@@ -70,13 +70,27 @@ export async function participants(req, res, next) {
   }
 }
 
+export async function setAttendance(req, res, next) {
+  try {
+    const updated = await service.setAttendance(
+      req.user,
+      Number(req.params.id),
+      Number(req.params.registrationId),
+      req.body?.attended,
+    );
+    ok(res, { registrationId: updated.id, attended: updated.attended });
+  } catch (e) {
+    next(e);
+  }
+}
+
 export async function exportParticipants(req, res, next) {
   try {
     const rows = await service.getParticipants(req.user, Number(req.params.id));
     const csv = participantsToCsv(rows);
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="participants-${req.params.id}.csv"`);
-    res.send('﻿' + csv); // BOM, чтобы Excel корректно открыл кириллицу
+    res.send('﻿' + csv);
   } catch (e) {
     next(e);
   }

@@ -118,7 +118,8 @@ function logout() {
           <strong>{{ r.event.title }}</strong>
           <p class="muted" style="margin: 2px 0 0">{{ fmtDay(r.event.startsAt) }}</p>
         </div>
-        <button class="btn btn-ghost" @click="cancel(r.id)">Отменить</button>
+        <span v-if="r.attended" class="badge attended">✓ Засчитано</span>
+        <button v-else class="btn btn-ghost" @click="cancel(r.id)">Отменить</button>
       </div>
     </template>
 

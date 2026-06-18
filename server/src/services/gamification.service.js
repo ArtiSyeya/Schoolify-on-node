@@ -3,9 +3,9 @@ import { levelInfo, badges, eventHours } from '../utils/gamification.js';
 
 const PERIOD_DAYS = { week: 7, month: 30 };
 
-// Лидерборд волонтёров (роль STUDENT) за период. Всё считается из активных регистраций.
 export async function leaderboard(period = 'all') {
-  const where = { status: 'ACTIVE', user: { role: 'STUDENT' } };
+  // только подтверждённые посещения дают очки/часы
+  const where = { status: 'ACTIVE', attended: true, user: { role: 'STUDENT' } };
   if (PERIOD_DAYS[period]) {
     where.createdAt = { gte: new Date(Date.now() - PERIOD_DAYS[period] * 86_400_000) };
   }
@@ -18,21 +18,20 @@ export async function leaderboard(period = 'all') {
     },
   });
 
-  // все волонтёры — чтобы попавшие с 0 активности тоже имели место
   const students = await prisma.user.findMany({
     where: { role: 'STUDENT' },
     select: { id: true, fullName: true },
   });
 
   const map = new Map();
-  for (const s of students) {
-    map.set(s.id, { userId: s.id, fullName: s.fullName, points: 0, hours: 0, eventsCount: 0 });
+  for (const student of students) {
+    map.set(student.id, { userId: student.id, fullName: student.fullName, points: 0, hours: 0, eventsCount: 0 });
   }
-  for (const r of regs) {
-    const row = map.get(r.userId);
+  for (const reg of regs) {
+    const row = map.get(reg.userId);
     if (!row) continue;
-    row.points += r.event.points || 0;
-    row.hours += eventHours(r.event);
+    row.points += reg.event.points || 0;
+    row.hours += eventHours(reg.event);
     row.eventsCount += 1;
   }
 
@@ -46,10 +45,10 @@ export async function leaderboard(period = 'all') {
   return items;
 }
 
-// Статистика конкретного пользователя (для главной/профиля).
+
 export async function userStats(user) {
   const regs = await prisma.registration.findMany({
-    where: { userId: user.id, status: 'ACTIVE' },
+    where: { userId: user.id, status: 'ACTIVE', attended: true },
     include: { event: { select: { points: true, startsAt: true, endsAt: true } } },
   });
 
@@ -79,10 +78,11 @@ export async function userStats(user) {
   };
 }
 
-// Недавняя активность («дневник»): последние записи с очками.
+
 export async function recentActivity(userId, limit = 5) {
+  // «дневник» — только подтверждённые (за них начислены очки)
   const regs = await prisma.registration.findMany({
-    where: { userId, status: 'ACTIVE' },
+    where: { userId, status: 'ACTIVE', attended: true },
     orderBy: { createdAt: 'desc' },
     take: limit,
     include: { event: { select: { id: true, title: true, points: true, startsAt: true } } },

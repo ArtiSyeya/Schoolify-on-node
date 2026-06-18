@@ -1,6 +1,3 @@
-// Источник истины модели данных. Для прототипа — SQLite (enum не поддерживается,
-// поэтому role/status хранятся строками). Целевая БД — PostgreSQL (см. docs/architecture.md).
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -52,6 +49,7 @@ model Registration {
   event     Event    @relation(fields: [eventId], references: [id])
   eventId   Int
   status    String   @default("ACTIVE") // ACTIVE | CANCELLED
+  attended  Boolean  @default(false) // посещение подтверждено организатором/админом → начисляются очки
   createdAt DateTime @default(now())
 
   @@unique([userId, eventId]) // защита от повторной записи

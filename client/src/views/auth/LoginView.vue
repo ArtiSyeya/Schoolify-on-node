@@ -7,8 +7,8 @@ const store = useUserStore();
 const router = useRouter();
 const route = useRoute();
 
-const email = ref('alina@schoolify.ru');
-const password = ref('password123');
+const email = ref(null);
+const password = ref(null);
 const error = ref(null);
 const loading = ref(false);
 
