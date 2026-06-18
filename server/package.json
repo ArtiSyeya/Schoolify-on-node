@@ -9,8 +9,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "node prisma/seed.js",
-    "db:reset": "prisma migrate reset --force",
-    "db:setup": "prisma generate && prisma migrate deploy && node prisma/seed.js"
+    "db:reset": "prisma migrate reset --force"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
