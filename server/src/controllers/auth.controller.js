@@ -18,7 +18,7 @@ function publicUser(user) {
 
 export async function register(req, res, next) {
   try {
-    const { fullName, email, password } = req.body || {};
+    const { fullName, email, password, phone } = req.body || {};
     if (!fullName || !email || !password) {
       throw new ApiError(400, 'VALIDATION_ERROR', 'Имя, email и пароль обязательны');
     }
@@ -36,7 +36,7 @@ export async function register(req, res, next) {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { fullName, email, passwordHash, role: 'STUDENT' },
+      data: { fullName, email, passwordHash, phone: phone ? String(phone) : null, role: 'STUDENT' },
     });
 
     ok(res, { token: issueToken(user), user: publicUser(user) }, 201);

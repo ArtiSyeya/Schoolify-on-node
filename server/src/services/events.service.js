@@ -2,16 +2,20 @@ import { prisma } from '../config/prisma.js';
 import { ApiError } from '../utils/apiResponse.js';
 
 const EVENT_STATUSES = ['DRAFT', 'PUBLISHED', 'CANCELLED'];
+const EVENT_CATEGORIES = ['ECO', 'HELP', 'EDU', 'SPORT'];
 const ACTIVE_COUNT = { _count: { select: { registrations: { where: { status: 'ACTIVE' } } } } };
 
-// --- Публичный просмотр ---
+// Публичный просмотр
 
-export async function listEvents() {
-  const events = await prisma.event.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { startsAt: 'asc' },
-    include: ACTIVE_COUNT,
-  });
+export async function listEvents({ category, search, sort } = {}) {
+  const where = { status: 'PUBLISHED' };
+  if (category && EVENT_CATEGORIES.includes(category)) where.category = category;
+  if (search) {
+    where.OR = [{ title: { contains: search } }, { organization: { contains: search } }];
+  }
+  const orderBy = sort === 'points' ? { points: 'desc' } : { startsAt: 'asc' };
+
+  const events = await prisma.event.findMany({ where, orderBy, include: ACTIVE_COUNT });
   return events.map(formatEvent);
 }
 
@@ -23,7 +27,7 @@ export async function getEvent(id) {
   return event ? formatEvent(event) : null;
 }
 
-// --- Кабинет организатора ---
+// Кабинет организатора
 
 export async function listMine(actor) {
   const where = actor.role === 'ADMIN' ? {} : { organizerId: actor.id };
@@ -75,7 +79,7 @@ export async function getParticipants(actor, id) {
   }));
 }
 
-// --- Вспомогательное ---
+// Вспомогательное
 
 // Проверка: мероприятие существует и принадлежит организатору (или actor — админ).
 async function getOwnedEvent(actor, id) {
@@ -97,11 +101,36 @@ function validatePayload(data, { partial }) {
   }
   if (data.description !== undefined) out.description = data.description ? String(data.description) : null;
   if (data.location !== undefined) out.location = data.location ? String(data.location) : null;
+  if (data.organization !== undefined) {
+    out.organization = data.organization ? String(data.organization) : null;
+  }
+  if (data.category !== undefined) {
+    if (!EVENT_CATEGORIES.includes(data.category)) {
+      throw new ApiError(400, 'VALIDATION_ERROR', 'Недопустимая категория');
+    }
+    out.category = data.category;
+  }
+  if (data.points !== undefined) {
+    const p = Number(data.points);
+    if (!Number.isInteger(p) || p < 0) {
+      throw new ApiError(400, 'VALIDATION_ERROR', 'Очки — целое число ≥ 0');
+    }
+    out.points = p;
+  }
 
   if (!partial || data.startsAt !== undefined) {
     const d = new Date(data.startsAt);
     if (Number.isNaN(d.getTime())) throw new ApiError(400, 'VALIDATION_ERROR', 'Некорректная дата начала');
     out.startsAt = d;
+  }
+  if (data.endsAt !== undefined) {
+    if (data.endsAt) {
+      const d = new Date(data.endsAt);
+      if (Number.isNaN(d.getTime())) throw new ApiError(400, 'VALIDATION_ERROR', 'Некорректная дата окончания');
+      out.endsAt = d;
+    } else {
+      out.endsAt = null;
+    }
   }
   if (!partial || data.capacity !== undefined) {
     const c = Number(data.capacity);
@@ -126,7 +155,11 @@ function formatEvent(e) {
     title: e.title,
     description: e.description,
     location: e.location,
+    organization: e.organization,
+    category: e.category,
+    points: e.points,
     startsAt: e.startsAt,
+    endsAt: e.endsAt,
     capacity: e.capacity,
     status: e.status,
     registeredCount,

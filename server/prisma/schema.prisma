@@ -15,6 +15,7 @@ model User {
   fullName      String
   email         String         @unique
   passwordHash  String
+  phone         String?
   role          String         @default("STUDENT") // GUEST | STUDENT | ORGANIZER | ADMIN
   isBlocked     Boolean        @default(false)
   events        Event[]
@@ -29,7 +30,11 @@ model Event {
   title         String
   description   String?
   location      String?
+  organization  String?        // организатор-учреждение, напр. «Чистый город»
+  category      String         @default("ECO") // ECO | HELP | EDU | SPORT
+  points        Int            @default(0) // награда за участие
   startsAt      DateTime
+  endsAt        DateTime?      // конец, для диапазона времени и подсчёта часов
   capacity      Int            @default(0) // 0 = без лимита
   status        String         @default("DRAFT") // DRAFT | PUBLISHED | CANCELLED
   organizer     User           @relation(fields: [organizerId], references: [id])

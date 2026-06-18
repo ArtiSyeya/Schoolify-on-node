@@ -13,10 +13,17 @@ export const useUserStore = defineStore('user', {
   actions: {
     async login(email, password) {
       const { data } = await api.post('/auth/login', { email, password });
-      this.user = data.data.user;
-      this.token = data.data.token;
-      localStorage.setItem('user', JSON.stringify(this.user));
-      localStorage.setItem('token', this.token);
+      this.setSession(data.data);
+    },
+    async register(payload) {
+      const { data } = await api.post('/auth/register', payload);
+      this.setSession(data.data);
+    },
+    setSession({ user, token }) {
+      this.user = user;
+      this.token = token;
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
     },
     logout() {
       this.user = null;

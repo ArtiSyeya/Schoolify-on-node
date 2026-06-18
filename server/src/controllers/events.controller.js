@@ -4,7 +4,11 @@ import { ok, ApiError } from '../utils/apiResponse.js';
 
 export async function getEvents(req, res, next) {
   try {
-    const items = await service.listEvents();
+    const items = await service.listEvents({
+      category: req.query.category,
+      search: req.query.search,
+      sort: req.query.sort,
+    });
     ok(res, { items, total: items.length });
   } catch (e) {
     next(e);

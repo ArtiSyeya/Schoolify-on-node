@@ -1,42 +1,64 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { eventsService } from '../../services/events.service';
+import { CATEGORY_FILTERS } from '../../constants/categories';
+import EventCard from '../../components/EventCard.vue';
 
 const events = ref([]);
 const loading = ref(true);
 const error = ref(null);
+const search = ref('');
+const category = ref('ALL');
 
-onMounted(async () => {
+let debounce;
+
+async function load() {
+  loading.value = true;
+  error.value = null;
   try {
-    events.value = await eventsService.list();
+    const params = {};
+    if (category.value !== 'ALL') params.category = category.value;
+    if (search.value.trim()) params.search = search.value.trim();
+    events.value = await eventsService.list(params);
   } catch {
-    error.value = 'Не удалось загрузить мероприятия';
+    error.value = 'Не удалось загрузить события';
   } finally {
     loading.value = false;
   }
-});
+}
 
-const fmtDate = (d) => new Date(d).toLocaleString('ru-RU', { dateStyle: 'medium', timeStyle: 'short' });
+onMounted(load);
+watch(category, load);
+watch(search, () => {
+  clearTimeout(debounce);
+  debounce = setTimeout(load, 300);
+});
 </script>
 
 <template>
-  <h1>Мероприятия</h1>
+  <h1>События</h1>
 
-  <p v-if="loading">Загрузка…</p>
-  <p v-else-if="error" class="error">{{ error }}</p>
-  <p v-else-if="!events.length">Пока нет опубликованных мероприятий.</p>
+  <input v-model="search" class="input" placeholder="Поиск событий…" style="margin: 12px 0" />
 
-  <div v-else class="grid">
-    <router-link
-      v-for="e in events"
-      :key="e.id"
-      :to="`/events/${e.id}`"
-      class="card"
+  <div class="chips">
+    <span
+      v-for="c in CATEGORY_FILTERS"
+      :key="c.key"
+      class="chip"
+      :class="{ active: category === c.key }"
+      @click="category = c.key"
     >
-      <h3>{{ e.title }}</h3>
-      <p class="muted">{{ e.location }}</p>
-      <p>{{ fmtDate(e.startsAt) }}</p>
-      <span class="badge">Свободно: {{ e.freeSeats ?? '∞' }}</span>
-    </router-link>
+      {{ c.label }}
+    </span>
   </div>
+
+  <div class="page-head">
+    <small class="muted">Сортировка: по дате</small>
+    <small class="green">{{ events.length }} событий</small>
+  </div>
+
+  <p v-if="loading" class="muted">Загрузка…</p>
+  <p v-else-if="error" class="error">{{ error }}</p>
+  <p v-else-if="!events.length" class="muted">Ничего не найдено.</p>
+  <EventCard v-for="e in events" :key="e.id" :event="e" />
 </template>
