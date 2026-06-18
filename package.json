@@ -7,7 +7,7 @@
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",
     "install:all": "npm install && npm install --prefix server && npm install --prefix client",
-    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client && npm run db:setup --prefix server",
+    "build": "npm install --include=dev --prefix server && npm install --include=dev --prefix client && npm run build --prefix client && npm run db:setup --prefix server",
     "start": "npm start --prefix server"
   },
   "devDependencies": {
