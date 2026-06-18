@@ -5,7 +5,7 @@ import { eventsService } from '../../services/events.service';
 import { registrationsService } from '../../services/registrations.service';
 import { useUserStore } from '../../store/user';
 import { categoryMeta } from '../../constants/categories';
-import { fmtRange } from '../../utils/format';
+import { fmtRange, isFinished } from '../../utils/format';
 
 const route = useRoute();
 const router = useRouter();
@@ -19,6 +19,7 @@ const actionError = ref(null);
 const submitting = ref(false);
 
 const cat = computed(() => (event.value ? categoryMeta(event.value.category) : null));
+const finished = computed(() => (event.value ? isFinished(event.value) : false));
 const isStudent = computed(() => store.role === 'STUDENT');
 const eventId = computed(() => Number(route.params.id));
 
@@ -102,8 +103,13 @@ async function cancelReg() {
       </div>
     </div>
 
+    <!-- Завершённое событие: запись недоступна -->
+    <div v-if="finished" class="banner-done">
+      Событие завершено<template v-if="myReg"> · вы участвовали</template>
+    </div>
+
     <!-- Уже записан: статус + отмена -->
-    <template v-if="myReg">
+    <template v-else-if="myReg">
       <div class="enrolled">✓ Вы зарегистрированы на это событие</div>
       <button class="btn btn-ghost btn-block" :disabled="submitting" @click="cancelReg">
         {{ submitting ? '…' : 'Отменить регистрацию' }}
@@ -134,5 +140,15 @@ async function cancelReg() {
   text-align: center;
   font-weight: 600;
   margin-bottom: 10px;
+}
+
+.banner-done {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: center;
+  font-weight: 600;
 }
 </style>
