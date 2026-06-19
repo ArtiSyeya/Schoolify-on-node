@@ -4,7 +4,6 @@ import { levelInfo, badges, eventHours } from '../utils/gamification.js';
 const PERIOD_DAYS = { week: 7, month: 30 };
 
 export async function leaderboard(period = 'all') {
-  // только подтверждённые посещения дают очки/часы
   const where = { status: 'ACTIVE', attended: true, user: { role: 'STUDENT' } };
   if (PERIOD_DAYS[period]) {
     where.createdAt = { gte: new Date(Date.now() - PERIOD_DAYS[period] * 86_400_000) };
@@ -80,7 +79,6 @@ export async function userStats(user) {
 
 
 export async function recentActivity(userId, limit = 5) {
-  // «дневник» — только подтверждённые (за них начислены очки)
   const regs = await prisma.registration.findMany({
     where: { userId, status: 'ACTIVE', attended: true },
     orderBy: { createdAt: 'desc' },

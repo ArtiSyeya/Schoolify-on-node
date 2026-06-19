@@ -3,8 +3,6 @@ import { env } from '../config/env.js';
 import { prisma } from '../config/prisma.js';
 import { ApiError } from '../utils/apiResponse.js';
 
-// Проверка JWT + что пользователь всё ещё существует и не заблокирован.
-// Кладёт актуальные { id, role } из БД в req.user.
 export async function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
@@ -22,7 +20,6 @@ export async function requireAuth(req, res, next) {
       where: { id: payload.id },
       select: { id: true, role: true, isBlocked: true },
     });
-    // пользователь удалён или БД пересеяна (старый токен) → не 500, а понятная 401
     if (!user) {
       return next(new ApiError(401, 'UNAUTHORIZED', 'Сессия недействительна, войдите заново'));
     }
@@ -32,11 +29,10 @@ export async function requireAuth(req, res, next) {
     req.user = { id: user.id, role: user.role };
     next();
   } catch (e) {
-    next(e); // настоящая ошибка БД — пусть уйдёт в errorHandler, не маскируем
+    next(e);
   }
 }
 
-// Проверка роли. Применять после requireAuth.
 export const requireRole =
   (...roles) =>
   (req, res, next) => {

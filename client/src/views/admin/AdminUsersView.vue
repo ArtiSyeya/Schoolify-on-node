@@ -71,31 +71,31 @@ const isSelf = (id) => id === store.user?.id;
       </tr>
     </thead>
     <tbody>
-      <tr v-for="u in users" :key="u.id">
-        <td>{{ u.id }}</td>
-        <td>{{ u.fullName }}<span v-if="isSelf(u.id)" class="muted"> (вы)</span></td>
-        <td>{{ u.email }}</td>
+      <tr v-for="user in users" :key="user.id">
+        <td>{{ user.id }}</td>
+        <td>{{ user.fullName }}<span v-if="isSelf(user.id)" class="muted"> (вы)</span></td>
+        <td>{{ user.email }}</td>
         <td>
           <select
-            :value="u.role"
-            :disabled="isSelf(u.id)"
-            @change="changeRole(u, $event.target.value)"
+            :value="user.role"
+            :disabled="isSelf(user.id)"
+            @change="changeRole(user, $event.target.value)"
           >
-            <option v-for="r in ROLES" :key="r" :value="r">{{ r }}</option>
+            <option v-for="role in ROLES" :key="role" :value="role">{{ role }}</option>
           </select>
         </td>
         <td>
-          <span class="badge" :class="{ blocked: u.isBlocked }">
-            {{ u.isBlocked ? 'Заблокирован' : 'Активен' }}
+          <span class="badge" :class="{ blocked: user.isBlocked }">
+            {{ user.isBlocked ? 'Заблокирован' : 'Активен' }}
           </span>
         </td>
         <td>
           <button
             class="btn btn-secondary"
-            :disabled="isSelf(u.id)"
-            @click="toggleBlock(u)"
+            :disabled="isSelf(user.id)"
+            @click="toggleBlock(user)"
           >
-            {{ u.isBlocked ? 'Разблокировать' : 'Заблокировать' }}
+            {{ user.isBlocked ? 'Разблокировать' : 'Заблокировать' }}
           </button>
         </td>
       </tr>
